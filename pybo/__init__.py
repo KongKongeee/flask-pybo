@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -16,6 +16,8 @@ naming_convention = {
 db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 migrate = Migrate()
 
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 def create_app():
     app = Flask(__name__)
@@ -29,6 +31,7 @@ def create_app():
     else:
         migrate.init_app(app, db)
     from . import models
+    
 
     # 블루프린트
     from .views import main_views, question_views, answer_views, auth_views
@@ -40,5 +43,8 @@ def create_app():
     # 필터
     from .filter import format_datetime
     app.jinja_env.filters['datetime'] = format_datetime
+
+    # 오류페이지
+    app.register_error_handler(404, page_not_found)
 
     return app
